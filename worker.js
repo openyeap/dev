@@ -270,7 +270,7 @@ export default {
       }
 
       const token = authHeader.replace('Bearer ', '');
-      const payload = verifyJWT(token, env.JWT_SECRET);
+      const payload = await verifyJWT(token, env.JWT_SECRET);
       if (!payload) {
         return new Response(JSON.stringify({ error: 'Invalid token' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
       }
@@ -362,7 +362,7 @@ export default {
       }
 
       const token = authHeader.replace('Bearer ', '');
-      const payload = verifyJWT(token, env.JWT_SECRET);
+      const payload = await verifyJWT(token, env.JWT_SECRET);
       if (!payload) {
         return new Response(JSON.stringify({ error: 'Invalid token' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
       }
