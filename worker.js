@@ -425,7 +425,8 @@ export default {
               }
             }), { status: 200, headers: { 'Content-Type': 'application/json' } });
           } catch (error) {
-            return new Response(JSON.stringify({ error: 'Failed to get data' }), { status: 500, headers: { 'Content-Type': 'application/json' } });
+            console.log(error);
+            return new Response(JSON.stringify({ error: 'Failed to get data'+ ":" + error }), { status: 500, headers: { 'Content-Type': 'application/json' } });
           }
         }
 
