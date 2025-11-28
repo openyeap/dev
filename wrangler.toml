@@ -5,8 +5,8 @@ compatibility_flags = ["nodejs_compat"]
 type = "module"
 
 [[d1_databases]]
-binding = "DB"
-database_id = ""
+binding = "db"
+database_id = "dev"
 preview_database_id = ""
 
 [vars]
