@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>动态Schema表单系统</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>动态Schema表单系统</h1>
+            <div class="auth-buttons">
+                <button id="loginBtn" class="btn btn-primary">登录</button>
+                <button id="registerBtn" class="btn btn-secondary">注册</button>
+                <div id="userInfo" style="display: none;">
+                    <span id="userName"></span>
+                    <button id="logoutBtn" class="btn btn-danger">退出</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- 认证模态框 -->
+        <div id="authModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2 id="modalTitle">登录</h2>
+                <form id="authForm">
+                    <div class="form-group">
+                        <label for="name">姓名</label>
+                        <input type="text" id="name" name="name" placeholder="请输入姓名">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">邮箱</label>
+                        <input type="email" id="email" name="email" placeholder="请输入邮箱" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">密码</label>
+                        <input type="password" id="password" name="password" placeholder="请输入密码" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">提交</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Schema管理区域 -->
+        <div id="schemaManager" style="display: none;">
+            <h2>Schema管理</h2>
+            <div class="schema-actions">
+                <button id="addSchemaBtn" class="btn btn-primary">添加Schema</button>
+            </div>
+            <div id="schemaList"></div>
+        </div>
+
+        <!-- Schema编辑模态框 -->
+        <div id="schemaModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2 id="schemaModalTitle">添加Schema</h2>
+                <form id="schemaForm">
+                    <div class="form-group">
+                        <label for="schemaName">Schema名称</label>
+                        <input type="text" id="schemaName" name="name" placeholder="请输入Schema名称" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="schemaContent">Schema内容（JSON）</label>
+                        <textarea id="schemaContent" name="schema" rows="10" placeholder="请输入JSON Schema" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- 数据管理区域 -->
+        <div id="dataManager" style="display: none;">
+            <h2>数据管理</h2>
+            <div class="data-actions">
+                <select id="schemaSelect"></select>
+                <button id="addDataBtn" class="btn btn-primary">添加数据</button>
+                <button id="exportCsvBtn" class="btn btn-secondary">导出CSV</button>
+            </div>
+            
+            <!-- 动态表单 -->
+            <div id="dynamicForm" style="display: none;">
+                <h3 id="formTitle">添加数据</h3>
+                <form id="dataForm"></form>
+                <div class="form-actions">
+                    <button type="submit" form="dataForm" class="btn btn-primary">保存</button>
+                    <button type="button" id="cancelBtn" class="btn btn-secondary">取消</button>
+                </div>
+            </div>
+            
+            <!-- 数据列表 -->
+            <div id="dataList">
+                <div class="pagination">
+                    <button id="prevPage" class="btn btn-secondary">上一页</button>
+                    <span id="pageInfo">第 1 页，共 1 页</span>
+                    <button id="nextPage" class="btn btn-secondary">下一页</button>
+                </div>
+                <table id="dataTable">
+                    <thead>
+                        <tr id="tableHeaders"></tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
