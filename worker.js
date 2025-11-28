@@ -312,7 +312,7 @@ export default {
             ).bind(tenantId, body.name, body.schema).run();
 
             // 自动创建数据库表
-            const tableName = `${tenantId}_${body.name}`;
+            const tableName = `${body.name}_${tenantId}`;
             const createTableSQL = generateCreateTableSQL(tableName, schemaObj);
 
             console.error("createTableSQL",createTableSQL);
@@ -384,7 +384,7 @@ export default {
         }
 
         const schema = JSON.parse(schemaResult.schema);
-        const tableName = `${tenantId}_${schemaName}`;
+        const tableName = `${schemaName}_${tenantId}`;
 
         if (action === 'export' && method === 'GET') {
           // CSV导出
