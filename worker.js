@@ -72,7 +72,7 @@ async function hashPassword(password) {
 async function verifyPassword(password, hash) {
   const hashedPassword = await hashPassword(password);
   return hashedPassword === hash;
-
+}
 // 从JSON Schema生成SQL CREATE TABLE语句
 function generateCreateTableSQL(tableName, schema) {
   const properties = schema.properties;
