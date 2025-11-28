@@ -315,7 +315,7 @@ export default {
             const tableName = `${tenantId}_${body.name}`;
             const createTableSQL = generateCreateTableSQL(tableName, schemaObj);
 
-            return new Response (createTableSQL);
+            console.error("createTableSQL",createTableSQL);
             await env.DB.exec(createTableSQL);
 
             return new Response(JSON.stringify({ id: result.meta.last_row_id, name: body.name, schema: body.schema }), { status: 201, headers: { 'Content-Type': 'application/json' } });
