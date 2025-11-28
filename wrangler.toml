@@ -2,6 +2,7 @@ name = "dev"
 main = "worker.js"
 compatibility_date = "2023-07-01"
 compatibility_flags = ["nodejs_compat"]
+type = "module"
 
 [[d1_databases]]
 binding = "DB"
