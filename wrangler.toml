@@ -10,7 +10,4 @@ directory = "./public"
 [observability]
 enabled = true
 head_sampling_rate = 1 # optional. default = 1.
-
-[[d1_databases]]
-binding = "DB"
-database_id = "dev"
+ 
