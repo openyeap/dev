@@ -193,14 +193,15 @@ export default {
           const result = await env.DB.prepare(
             'INSERT INTO users (email, password_hash, name) VALUES (?, ?, ?)'
           ).bind(body.email, passwordHash, body.name).run();
-          
+
           const token = await generateJWT(result.meta.last_row_id, body.email, env.JWT_SECRET);
           return new Response(JSON.stringify({ token, user: { id: result.meta.last_row_id, email: body.email, name: body.name } }), { status: 201, headers: { 'Content-Type': 'application/json' } });
         } catch (error) {
+          console.error('Registration error:', error); // Log the actual error for debugging
           if (error.message.includes('UNIQUE constraint failed')) {
             return new Response(JSON.stringify({ error: 'Email already exists' }), { status: 409, headers: { 'Content-Type': 'application/json' } });
           }
-          return new Response(JSON.stringify({ error: 'Registration failed' }), { status: 500, headers: { 'Content-Type': 'application/json' } });
+          return new Response(JSON.stringify({ error: 'Registration failed', details: error.message }), { status: 500, headers: { 'Content-Type': 'application/json' } });
         }
       }
       
@@ -215,15 +216,16 @@ export default {
           const user = await env.DB.prepare(
             'SELECT id, email, password_hash, name FROM users WHERE email = ?'
           ).bind(body.email).first();
-          
+
           if (!user || !(await verifyPassword(body.password, user.password_hash))) {
             return new Response(JSON.stringify({ error: 'Invalid email or password' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
           }
-          
+
           const token = await generateJWT(user.id, user.email, env.JWT_SECRET);
           return new Response(JSON.stringify({ token, user: { id: user.id, email: user.email, name: user.name } }), { status: 200, headers: { 'Content-Type': 'application/json' } });
         } catch (error) {
-          return new Response(JSON.stringify({ error: 'Login failed' }), { status: 500, headers: { 'Content-Type': 'application/json' } });
+          console.error('Login error:', error); // Log the actual error for debugging
+          return new Response(JSON.stringify({ error: 'Login failed', details: error.message }), { status: 500, headers: { 'Content-Type': 'application/json' } });
         }
       }
       
@@ -244,14 +246,15 @@ export default {
           const user = await env.DB.prepare(
             'SELECT id, email, name, created_at FROM users WHERE id = ?'
           ).bind(payload.sub).first();
-          
+
           if (!user) {
             return new Response(JSON.stringify({ error: 'User not found' }), { status: 404, headers: { 'Content-Type': 'application/json' } });
           }
-          
+
           return new Response(JSON.stringify(user), { status: 200, headers: { 'Content-Type': 'application/json' } });
         } catch (error) {
-          return new Response(JSON.stringify({ error: 'Failed to get user info' }), { status: 500, headers: { 'Content-Type': 'application/json' } });
+          console.error('Get user info error:', error); // Log the actual error for debugging
+          return new Response(JSON.stringify({ error: 'Failed to get user info', details: error.message }), { status: 500, headers: { 'Content-Type': 'application/json' } });
         }
       }
       
