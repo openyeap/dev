@@ -3,11 +3,3 @@ main = "worker.js"
 compatibility_date = "2023-07-01"
 compatibility_flags = ["nodejs_compat"]
 type = "module"
-
-[[d1_databases]]
-binding = "db"
-database_id = "dev"
-preview_database_id = ""
-
-[vars]
-JWT_SECRET = "your-secret-key-here"  # 生产环境中应使用环境变量
