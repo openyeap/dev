@@ -1,7 +1,7 @@
 // Cloudflare Worker环境中直接可用crypto模块
 
 // 生成JWT令牌
-function generateJWT(userId, email, secret) {
+async function generateJWT(userId, email, secret) {
   const header = { alg: 'HS256', typ: 'JWT' };
   const payload = {
     sub: userId,
