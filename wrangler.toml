@@ -1,10 +1,10 @@
-name = "dynamic-schema-forms"
+name = "dev"
 main = "worker.js"
 compatibility_date = "2023-07-01"
+compatibility_flags = ["nodejs_compat"]
 
 [[d1_databases]]
 binding = "DB"
-name = "dynamic-schema-db"
 database_id = ""
 preview_database_id = ""
 

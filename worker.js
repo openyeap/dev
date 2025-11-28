@@ -1,4 +1,4 @@
-import { createHmac } from 'crypto';
+// Cloudflare Worker环境中直接可用crypto模块
 
 // 生成JWT令牌
 function generateJWT(userId, email, secret) {
@@ -11,20 +11,38 @@ function generateJWT(userId, email, secret) {
   
   const encodedHeader = btoa(JSON.stringify(header));
   const encodedPayload = btoa(JSON.stringify(payload));
-  const signature = btoa(createHmac('sha256', secret)
-    .update(`${encodedHeader}.${encodedPayload}`)
-    .digest('binary'));
+  const encoder = new TextEncoder();
+  const data = encoder.encode(`${encodedHeader}.${encodedPayload}`);
+  const key = await crypto.subtle.importKey(
+    'raw',
+    encoder.encode(secret),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign']
+  );
+  const signatureBuffer = await crypto.subtle.sign('HMAC', key, data);
+  const signatureArray = Array.from(new Uint8Array(signatureBuffer));
+  const signature = btoa(String.fromCharCode(...signatureArray));
   
   return `${encodedHeader}.${encodedPayload}.${signature}`;
 }
 
 // 验证JWT令牌
-function verifyJWT(token, secret) {
+async function verifyJWT(token, secret) {
   try {
     const [encodedHeader, encodedPayload, signature] = token.split('.');
-    const expectedSignature = btoa(createHmac('sha256', secret)
-      .update(`${encodedHeader}.${encodedPayload}`)
-      .digest('binary'));
+    const encoder = new TextEncoder();
+    const data = encoder.encode(`${encodedHeader}.${encodedPayload}`);
+    const key = await crypto.subtle.importKey(
+      'raw',
+      encoder.encode(secret),
+      { name: 'HMAC', hash: 'SHA-256' },
+      false,
+      ['sign']
+    );
+    const expectedSignatureBuffer = await crypto.subtle.sign('HMAC', key, data);
+    const expectedSignatureArray = Array.from(new Uint8Array(expectedSignatureBuffer));
+    const expectedSignature = btoa(String.fromCharCode(...expectedSignatureArray));
     
     if (signature !== expectedSignature) {
       return null;
@@ -42,14 +60,18 @@ function verifyJWT(token, secret) {
 }
 
 // 生成密码哈希
-function hashPassword(password) {
-  return btoa(createHmac('sha256', password).digest('binary'));
+async function hashPassword(password) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(password);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return btoa(String.fromCharCode(...hashArray));
 }
 
 // 验证密码
-function verifyPassword(password, hash) {
-  return hashPassword(password) === hash;
-}
+async function verifyPassword(password, hash) {
+  const hashedPassword = await hashPassword(password);
+  return hashedPassword === hash;
 
 // 从JSON Schema生成SQL CREATE TABLE语句
 function generateCreateTableSQL(tableName, schema) {
@@ -147,12 +169,12 @@ export default {
         }
         
         try {
-          const passwordHash = hashPassword(body.password);
+          const passwordHash = await hashPassword(body.password);
           const result = await env.DB.prepare(
             'INSERT INTO users (email, password_hash, name) VALUES (?, ?, ?)'
           ).bind(body.email, passwordHash, body.name).run();
           
-          const token = generateJWT(result.meta.last_row_id, body.email, env.JWT_SECRET);
+          const token = await generateJWT(result.meta.last_row_id, body.email, env.JWT_SECRET);
           return new Response(JSON.stringify({ token, user: { id: result.meta.last_row_id, email: body.email, name: body.name } }), { status: 201, headers: { 'Content-Type': 'application/json' } });
         } catch (error) {
           if (error.message.includes('UNIQUE constraint failed')) {
@@ -174,11 +196,11 @@ export default {
             'SELECT id, email, password_hash, name FROM users WHERE email = ?'
           ).bind(body.email).first();
           
-          if (!user || !verifyPassword(body.password, user.password_hash)) {
+          if (!user || !(await verifyPassword(body.password, user.password_hash))) {
             return new Response(JSON.stringify({ error: 'Invalid email or password' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
           }
           
-          const token = generateJWT(user.id, user.email, env.JWT_SECRET);
+          const token = await generateJWT(user.id, user.email, env.JWT_SECRET);
           return new Response(JSON.stringify({ token, user: { id: user.id, email: user.email, name: user.name } }), { status: 200, headers: { 'Content-Type': 'application/json' } });
         } catch (error) {
           return new Response(JSON.stringify({ error: 'Login failed' }), { status: 500, headers: { 'Content-Type': 'application/json' } });
@@ -193,7 +215,7 @@ export default {
         }
         
         const token = authHeader.replace('Bearer ', '');
-        const payload = verifyJWT(token, env.JWT_SECRET);
+        const payload = await verifyJWT(token, env.JWT_SECRET);
         if (!payload) {
           return new Response(JSON.stringify({ error: 'Invalid token' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
         }
