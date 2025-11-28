@@ -2,3 +2,7 @@ name = "dev"
 main = "worker.js"
 compatibility_date = "2023-07-01"
 compatibility_flags = ["nodejs_compat"]
+
+[assets]
+binding = "ASSETS"
+directory = "./public"
